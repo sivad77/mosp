@@ -1,0 +1,122 @@
+1: 6/8/06
+	* Started to code up the basic skeleton
+	* Parsing command line arguments.
+	* Implemented basic list functionality accessed through a struct of pointers 
+		to functions. Therefore list implementation can be chosen at runtime.
+		-Not all operations are complete
+		-Hoping I will base my set ADT on lists
+	* Also implemented a matrix ADT
+		-Not sure if it was worth the effort
+		-Not happy with code structure
+		-Look at alternative avenues, perhaps scrap keeping everything but will
+		keep abstract in	hope to gain speed benefits later down the track.
+	* Tried to implement basic file I/O through populate function.
+		-Totally forgotten correct way to do this, eg fucntion names, and
+		arguments, too much SML, Python, Perl etc
+	* Still behind, but hopefully keeping the abstract will
+	pay off
+
+2: 7/8/06
+	* Removed matrix ADT in favour of char**
+	* Pre-lim file reading is complete
+	* Set considerable time learning vi commands, and editing .vimrc
+	* Learnt interesting stuff in CSE3322 which I may apply to this project.
+
+3: 9/8/06
+	* Scrapped runtime mapping to different list ADTs in favour of simplicity.
+	* Started to write set functions.
+		-subSetCmp working.
+		-Perhaps having a sorted list may imporve running times.
+	* Implemented sub-sumption.
+
+4: 10/8/06
+	* MOSP works with array list ADT (basic pre-processing)
+		-Working functions: subset union intersection
+	* Need to implement delete in my list ADT
+	* Have to implement a function which returns a set of clients mapped to a
+	product.
+
+5: 12/8/06
+	* Made list work with void* elements.
+	* Alot of code tidy up.
+
+6: 16/8/06
+	* Implemented before() after() open() maxOpen() exh() listCopy()
+	* Must test all fucntions
+	* Stepped back from coding and thought about howto represent lists, either:
+		-array list
+		-linked list
+		-bit-vector
+	* Settled on bit-vector 
+		-most of the operations are constant time
+		-the sets are	very dense < 0 .. 100
+
+7: 15/9/06
+	* Kinda was slack due to my birthday, then I got busy at work and lazy.
+	* Finsihed bit-wise set ADT
+		-Uses and array of unint_64 and used mod and div to find componant to
+		adjust
+	* Realised alot of time is being wasted with allocation and freeing, so I
+		implemented more set fucntions which store the result in the first argument,
+		set(Union|Intersection|Difference)Self(Set * self, Set * b) variety
+		-speed up due to not needed temp variables and overhead of alloc/free
+		-made code clearer due to no need for temp variable which where needed so i
+		could free the data.
+	* Added ./test/ containing bitSetTest.c and aListTest.c which are very basic
+		atm but test most of the fuctions. The beauty is I can tweak these functions
+		and then test them to see if anything goes wrong effortlessly.
+	* Worked on freeing memory throughout my program
+		-Learnt a valuable lesson, always free memory and dont put it off till
+		later. Spent some time will valgrind
+	* Optimised maxOpen the best I know so far using the sliding window princiable.
+		-I dont need to re-compute "before" every iteration
+		-Made an array for instant lookup of client set mapped to product - no more
+		recomputing
+		-Scrapped before() after() open() but are commented out as they may become
+		usefull down the track
+	* Did some rudimentry function call profiling using gprof
+		-I have tried to avoid using setCardinal, and replaced it by setEmpty in a
+		few places O(1) compared to O(N) etc.
+
+8: 16/9/06
+	* Realised I was doing some real stupid stuff in maxOpen, fixed all that,
+	improved running time alot. (Namely something equivalent to 2+2-2)
+	* Refractured my mosp.c file, so I can expose my main algorithms to testing,
+	now i have have no confilting mains
+	* Fixed my program control, and nearly got all the flags working correctly
+		-Some more thought have has to be given here
+	* Removed nonsubsumed() and put one extra line in subsumed which fixes it.
+
+9: 19/9/06
+	* implemented active() unionSet() and bb()
+		-not sure if it works, but seems to
+	* kill memory leak in exh() by using an static array to store te schedule
+		-must write a nice tidy function to go from list > static array
+	* implemented faster setCardinal by using a lookup table, at the moments it
+		uses an char array index size 8, will make it size 16 at some stage
+
+10: 27/9/06
+	* implemented hash functions using an inbuilt linked list for chaining.
+		-gets hash index using srand on a key, then calling rand twice.
+	* implemented stacks, and it all seems to work
+	* starting put together a list
+
+11: 28/9/06
+	* implemented a function to reconstruct the schedule from a hash table
+	* cleaned up code, renamed some variables etc
+	* implemented run function, which calls a wrapper of a fixed type for each
+		algotithm
+	* implemented listMerge which joins two list provided listA is big enough to
+		eat listB
+	* implemented unsubsume
+
+12: 13/10/06
+	* made my set implementation simpler by using a set macro of 100 for set
+		size, also implemented the ability to avoiv mallocs, so sets can be on the
+		stack to avoid overhead and needing to free :)
+		did testing of allo vc stat over 1000000 or interation and stack came on on
+		top by a big margin
+	* tweaked algorithms, changed varible names etc
+	* implemented counter framework
+	* made faster failed product hash functionality
+	
