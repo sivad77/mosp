@@ -1,0 +1,24 @@
+\section{Testing}
+
+The testing was performed according to the following schemes. Depending on
+flags used during compilation, debugging, assertion and verbose output may be
+enabled. I am confident that all the primitive functions are correct. 
+
+	All data type methods were given strict behaviour on all inputs, that
+is boundary cases were identified and delt with elegantly (some instances the
+program terminates with an assertion). Unfortunately, in some complex functions
+the program terminates with an assertion due to speed considerations and shows
+the line number and source file where the program failed. This is not enough
+information in many cases to identify what caused the failure so extra
+information is included in the source code before the assertion describing why
+the assertion should be true.
+
+	All primitive methods were extensively checked, with each boundary
+cases tested. The set library went under even more extensive tests, using
+randomly generated sets and testing relational, algebraic and special cases as
+this is the most used DT.
+
+	Due to lack of time, many higher order function lacked specific testing
+functions, but as these methods are built upon the primitive methods, we can
+reason that is the logic is sound the behaviour of the function must be
+correct. 

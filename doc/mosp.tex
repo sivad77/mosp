@@ -1,0 +1,147 @@
+% Copyright (c) 2003, Menaka Lashitha Bandara.
+%      Permission is granted to copy, distribute and/or modify this document
+%      on the following conditions. You must always keep this licence note intact
+%      in verbatim to this document. This licence may not be changed by none other 
+%      than the author. You must always provide a location on the world
+%      wide web where this document is available electronically at no cost. 
+%      The author makes no guarantee of the correctness of this document. Thus, the
+%      author cannot be held accountable to any damaged caused by use of this document.
+%      The author is also not accountable for damaged caused by derived work or
+%      any modified portions of this document. Any work derived from this
+%      document must follow this licence or the GNU Free Documentation
+%      Licence, and no other licence, unless explicit authorisation is
+%      given by the author. Derived work includes portions of this
+%      document that are to be embedded into another document. You are allowed
+%      to use this document commercially or non-commercially, if and only if
+%      all the conditions listed above are met.
+
+\documentclass[11,a4paper]{article}
+\parindent0cm
+\setlength{\parskip}{\baselineskip}
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{sectsty}
+\usepackage{amsmath}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{amsfonts}
+\usepackage{sverb}
+
+%\allsectionsfont{\sffamily}
+
+%\titleformat{\chapter}[display]{\bfseries}{}{0pt}{\Huge}
+\renewcommand{\familydefault}{\sfdefault}
+%\renewcommand{\chaptermark}[1]{\thechapter #1}
+%\titleformat{\section}[display]{\bfseries}{}{0pt}{\Huge}
+
+% Define User commands:
+\newcommand{\TITLE}{Minimising the maximun number of open stacks}
+\newcommand{\AUTHOR}{Joshua Davis}
+\newcommand{\EMAIL}{joshdr77@hotmail.com}
+\newcommand{\DATE}{2006}
+
+\renewcommand{\algorithmicrequire}{\textbf{procedure}}
+\renewcommand{\algorithmicensure}{\textbf{end procedure}}
+
+\author{ {\Large\bf \AUTHOR} \\ {\Large\tt \EMAIL}}
+\title{ {\Huge \bf \TITLE}}
+\date{}
+
+
+\newcommand{\Unix}{Unix$^{\text{TM}}$ }
+
+% Important Commands
+\newcommand{\degrees}{\ensuremath{^\circ}}
+
+% Mathematical Definitions:
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{ax}{Axiom}
+\newtheorem{defn}[thm]{Definition}
+
+\newcommand{\thmref}[1]{Theorem~\ref{#1}}
+\newcommand{\secref}[1]{\S\ref{#1}}
+\newcommand{\lemref}[1]{Lemma~\ref{#1}}
+\newcommand{\defnref}[1]{Definition~\ref{#1}}
+
+% Mathematical niceities...
+\newcommand{\mdot}{\ldotp}
+\newcommand{\inte}[2]{\int_{#1}^{#2}}
+\newcommand{\intbox}[3]{\left[#1\right]_{#2}^{#3}}
+\newcommand{\cbrac}[1]{\left(#1\right)}
+\newcommand{\bbrac}[1]{\left[#1\right]}
+\newcommand{\dbrac}[1]{\left\{#1\right\}}
+\newcommand{\modulus}[1]{\left|#1\right|}
+\newcommand{\set}[1]{\dbrac{#1}}
+\newcommand{\eqv}{\Longleftrightarrow}
+\newcommand{\bimplies}{\Longleftarrow}
+\newcommand{\QED}{\begin{flushright}\ensuremath{\square}\end{flushright}}
+
+\newcommand{\In}{\mathbb{Z}}
+\newcommand{\Ra}{\mathbb{Q}}
+\newcommand{\Na}{\ensuremath{\mathbb{N}}}
+
+\newcommand{\putt}{\ensuremath{\rightarrow}}
+
+% Other definitions.
+\newcommand{\eref}[1]{(\ref{#1})}
+
+% Page Setup:
+\pagestyle{fancy}
+\lhead{} 
+\chead{}
+\rhead{}
+\lfoot{}
+\renewcommand{\headrulewidth}{0pt}
+
+
+% DOCUMENT BEGINS:
+\begin{document}
+
+% Title + Table Of Contents:
+%\maketitle
+% Licence
+\thispagestyle{empty}
+\include{titlepage}
+\thispagestyle{empty}
+\newpage
+\thispagestyle{empty}
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+
+% Initiliase Counters:
+\setcounter{page}{1}
+%\pagenumbering{Arabic}
+
+% SECTION: Introduction...
+\include{introduction}
+\include{methodology}
+\include{implementation}
+\include{guide}
+\include{testing}
+\include{results}
+\include{discussion}
+
+%\include{rgraph}
+%\include{specification}
+%\include{testing}
+%\include{results}
+
+%\appendix
+%\include{aproof}
+%\include{acompile}
+%\include{agraphformat}
+%\include{adatatypes}
+%\include{agraphimp}
+%\include{aalgimp}
+%\include{aresults}
+
+%\include{references}
+
+\end{document}

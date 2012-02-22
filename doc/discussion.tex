@@ -1,0 +1,83 @@
+\section{Discussion}
+
+\subsection{Interpretation of Results} 
+
+As expected the exhaustive algorithm did not obtain a single optimal value over
+any of the selected tests. As the smallest search space to explore was $|!16|$,
+this was not intended and was unavoidable due to a last minute bug which
+prevented partioning from working in the problems I had hoped to obtain a solution in. I was hoping to have the at least one of the
+Warwicks yield a solution.
+
+Due to a memory leak in branch and bound, it was not tested on the university
+computer, so it is not directly comparable with any other results obtained
+(even though the computer the test was ran on is slower then ra-clay).
+But table 6 does show some interesting statistics. $War_1$ and
+$War_2$ were both able to be solved, and infact were the fastest obtained
+solutions out of all the tests. This is because over small values of $P!$,
+branch and bound is a very effcient algorithm, especially if many optimal
+solutions lay in the search space.
+
+Retaining partial solutions was the only enhancment added to branch and bound,
+perhaps the simplist change made to our program, yet allowed the ability to
+solve the majority of the selected problem isntances.  Table 7 shows 18 of the
+22 tests obtained optimal solutions, which is a dramatic improvement upon the
+branch and bound. This really does go to show that simple solutions are always
+tthe best. It is interesting to note that $GPN_8$ did in fact obtain the
+corrrect best value, but failed to obtain the correct schedule due to exceeding
+the 1,000,000 step contraint. It is also interesting that if a solution was
+obtained, it was done well within the 1,000,000 steps allowed.  Due to the
+limitation on memory usage two of the tests failed, which may have completed if
+allowed to finish executing.
+
+Backwards, stepwise and binarychop all performed very well but it seems that
+how fast a solution is obtained is directly rated to where the optimal solution
+lays in the domain from L to U. If close to L, stepwise is extremly fast, the
+opposite goes for backwards and binarychop is extremly good at finding
+solutions if the lay in the middle.
+
+The fastest algorithm over all was stepwise, this is most likly due to its
+ability to continually reuse the stack. I guess the same logic can be applied
+from going to dynamic prgomming $A\star$ from branch and bound, in that past solutions are constantly reused reducing recomputing.
+
+\subsection{Optimisations}
+After initial profiling both O(n) methods in the set implementation,
+setCardinal and setNext accounted for up to 40% of the time taken to obtain a
+solution. So both this operations were optimised using lookup tables.  Which
+improved the search time by a small margin.
+
+The bit string sets also came in handy in quickly generate hash values, as the
+value of the string if read as an integer gives a high probability of being
+unique.
+
+Retaining successful sets in $A\star$ was ignored as backwards and binary when moving backwards,  started with a new stacks table after each iteration.
+
+\subsection{What I Learnt}
+ What I learnt I have always struggled with recursion and knew I had to expose
+myself to it so that I could utilise it where it appeared more appropriate than
+iteraton. Therefore, the natural thing to do was to choose MOSP as my 3rd year
+project as I would have no option but to learn how to use it correctly.  Now
+that the project is complete and I have implemented four algorithms solely
+based on traversing a tree generated recursively. This project has allowed me
+to feel more comfortable with using recursion, however, I still believe I will
+require examples to work from when writing more complicated recursive
+algorithms. It is hoped with more time and practice I will find recursion as
+simple as iteration.  
+
+Keeping in mind the advice, 'use pen and paper before you touch the computer',
+I began my project on paper. Although, I would normally use the computer to
+find the best implementations for the datatypes, I found that using paper
+allowed me to be thorough and hence choose the best implementations. This was a
+valuable lesson and will be used as a starting point for further projects. 
+
+I reluctantly learnt to use long variables names, to which I have no grown a
+liking to you, as after a few weeks of not looking at the code, I quickly
+forgot what I was trying to do. Variables names which convey meaning facilitate
+the understanding of code.
+
+I accidently issued rm * in the source code directory 8 hours before the
+project was due, with my last backup 5 days old. So, I will always make
+frequent backups from now on.
+
+\subsection{Things I want to do}
+Unfortunately due to lack of time I was unable to implement
+a single heuristic of my own. Decreasing the upper bound would of been nice.

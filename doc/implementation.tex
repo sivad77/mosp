@@ -1,0 +1,184 @@
+\section{Implementation}
+
+\subsection{Data types}
+Implementing the above algorithms required many data types and data structures.
+Each data type implementation possesses strengths and weaknesses, therefore, it
+was important that the most compatible implementation was matched with a
+suitable task to ensure maximum efficiency. If no thought was given to how the
+data type was used, the efficiency and perhaps effectiveness of obtaining a
+solution may have been lacking.
+
+Initial analysis of the processes involved to obtain a solution showed that any
+operations performed during a search algorithm (staggering $O(|P|!)$) need to
+be fast, but in operations performed in preprocessing (perhaps $O(n^3)$) is not
+as critical. This crucial observation lead to chosing implementations which
+favoured the operations preformed in the search algorithms. This lead to the
+following data types to be implemented in this project.
+ 
+\subsection{Set Data Type}
+
+The universal set is finite with up to 100 products and 100 clients, so using
+computer memory as bit string where the number of bits used is equal to the
+number of elements in the universal set. A given set is then represented by a
+bit string in which corresponding elements in that set are 1 and all other bits
+are 0.
+
+Bitwise operations are fast and simple in comparison to list operations which
+implement sets over a finite universal set. A desirable side effect of using
+bit strings is that bitwise operations $\& \mid \wedge$ can be used to
+implement the majority of set operations. Furthermore, bitwise operations are
+fast, in most cases in constant time and complex procedures which may have been
+seen if using a list set representation are abolished. This may reduce bugs and
+lead to a more reliable code. Below is an example of an 8 bit segment of
+memory, where x can be 1 representing an element in the set or 0, the element
+is not in the set.
+
+x x x x x x x x  Memory
+\\
+7 6 5 4 3 2 1 0  Element
+
+Here are two simple sets, in which the $\mid$ operation computes the union.
+
+1 0 0 1 0 0 0 1 = $\{0,4,7\} = A$
+\\ 
+0 1 0 1 0 0 1 0 = $\{1,4,6\} = B$
+
+$A \mid B \equiv A \cup B$
+\\
+1 1 0 1 0 0 1 1 = {1,2,4,6,7}
+
+
+\subsection{List Data Type} Analysis of the search algorithms showed that the
+following list operations had to be fast, evident in while loop and functions
+calls from the body of exhaustive, and within the branch and bound algorithms.
+But the more advanced algorithms ($A\star$ and backwards) lacked list
+operations all together, so less time was spent optimising the implementation.
+Choosing the list implementation proved difficult, below is a table comparing
+performance of differing implementations.
+
+\begin{table}[H]
+\begin{tabular}{|c|c|c|c|c|}\hline
+Operations & Array (end) & Array (Body) & Link List (end) & Link List (body) \\
+\hline
+Indexing&$O(1)$&$O(1)$&$O(1)$&$O(1)$\\
+Inserting&$O(1)$&$O(n)$&$O(1)$&$O(n)$\\
+Deleting&$O(1)$&$O(n)$&$O(1)$&$O(n)$\\
+\hline
+\end{tabular}
+\caption{Array vs. linked list implementations}
+\end{table}
+
+Given that obtaining values via an index was more frequent then deleting and
+the majority of the operations were at the end of a list, the array
+implementation seemed like the best choice. Only limited analysis lead to this
+decision and analysis of the frequencies and localality of data lookups vs.
+list deletes was not explored. However, our chosen implementation only suffers
+slight performance loss using maxOpen which is used in the exhaustive
+algorithm. All the other algorithms used O(1) operations.
+
+\subsection{Table Data Type}
+The obvious choice was to use a hash table with chaining. Not only are hash
+tables fast with all operations O(1), given that collisions are avoided (or
+minimised). The hash table was used to mimic a linked list in recording failed
+sets in $A\star$. This is possible if the hash table is initialised with 1
+bucket.
+
+\subsection{Data Structures}
+In order to successfully implement preprocessing and search
+algorithms all information required must be together in a structure. To further
+complicate matters, partitioning breaks the problem up into further sub
+problems, which alone has independent information. So the following structures
+were used.
+\begin{listing}
+typedef struct {
+  char *n;        /* instance name */
+  int cn;         /* customer no. */
+  int pn;         /* product no. */
+  int lb;         /* lower bound */
+  int ub;         /* upper bound */
+  int maxIterations;
+
+  List *sp;       /* subsumed product list */
+  Set **cust;     /* customer array N.B c(p) for fast look up */
+
+  Segment *s;     /* contains all all MOSP's partitions and info */
+  int sn;         /* contains the number of partitions */
+
+  int flags;
+
+  Stats stats;
+
+  int **m;        /* matrix */
+} Mosp;
+\end{listing}
+
+In which all information is recorded.  And,
+\begin{listing}
+typedef struct {
+  int u;          /* contains the [u]pper bound */
+  int l;          /* contains the [l]ower bound */
+  int pn;         /* [p]roduct [n]umber */
+  int cn;         /* [c]ustomer [n]umber */
+  int maxIterations;
+
+  List *p;        /* contains the [p]roduction */
+  Set *up;        /* contains all elements in production */
+  Set *uc;
+  Set **cust;     /* points to m->cust */
+  Stats *stats;
+
+  int flags;      /* launch time flags */
+} Segment;
+\end{listing}
+which contains information only relevant to sub-problems.
+
+\subsection{Preprocessing}
+Determining what clinets ordered a given product was frequent and expensive
+with a $O(|C|)$ method, so a lookup table was implemented. An array$ cust[i]$
+returning a set of clients in constant time product $i$.
+
+Subsumption was implemented using two loops iterating over the product list.
+The outer loop initially starts with the first product $cur$, in the list where
+the inner loop always starts with the product at the front of current the list,
+$cmp$, and cycles to the last product before giving control back to the outer
+loop. This lets every product get compared with every other product. If the
+$cust[cur] \subseteq cust[cmp]$, cmp is deleted from the list and the loop
+continues until all subsumed products have been removed from the list.
+
+The implementation of partitioning the problem into sub-problems is similar in
+that two loops are used to compare every product together. However, the outer
+loop is not a product, but a set of clients $cmp$, which is initialised to
+$cust[prodA]$ before the inner loop begins. If in the inner loop $cmp$ is found
+to intersect with $cust[prodB]$, then $cmp = cmp \cup cust[prodB]$ and $prodB$
+is then deleted from that list and the inner loop starts again at the beginning
+of the list.
+
+\subsection{Search Algorithms}
+Reference to the code may help to to understand the following.
+
+The exhaustive search algorithm described in methodology was
+efficient from an 1 to 1 implementation stand point. The only problems were
+extracting an optimal schedule and determining where variables should exist in
+the computer memory (stack vs heap). Using a structure to contain the optimal
+schedule and the minimum value appeared to be the most elegant solution. At the
+base case the current $Sched tempMin$ is returned, and passed back up the tree.
+All the sets variables are allocated to the heap, and $tempSet$ are only for the
+while loop so are allocated to the stack.
+
+The implementation of branch and bound was not clear like above, as the
+algorithm was not efficient with a lot of recomputing of active value within
+the while loop taking place. The sensible thing to do was to remove the active
+function call and to generate the $indexMin$ data structure out of the while
+loop. As $indexMin$ contains the active value for each product, the multiple
+calls to active inside the while was no longer necessary. Retaining the optimal
+solution uses the same technique as in exhaustive search, but retaining the
+minimum was done in the while loop the same way done in the algorithm in
+methodology.
+
+Implementing $A\star$ was particularly easy as all the code was the same as
+branch and bound expect for the hash function calls which needed adding before
+and after the while loops. Due to lack of time, I did not experient with
+special hash functions or hash tables sized with prime numbers.
+
+Implementing stepwise, backwards and binary chop was also straight forward,
+with a direct translation from the algorithms started in methodology.

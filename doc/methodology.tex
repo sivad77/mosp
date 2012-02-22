@@ -1,0 +1,376 @@
+\section{Methodology}
+\subsection{Notation and Modelling}
+
+We will use the example depicted in table 1 to introduce the notation used for
+the remainder of this report and to formalise our model. Let $P$ be a set of
+products where $p \in P$ and $C$ be a set of customers where $c \in C$. Let
+$c(P')$ be a function which returns a set of clients ordering products $P'$,
+where $P' \subseteq P$ we can now define $c(P')$ as
+
+$c(P') = \bigcup_{ p\in P'} c(p)$
+
+To implement an exhaustive search and to check the solutions found by the
+advanced (branch and bound, $A\star$, etc) search algorithms are correct, we
+will need to evaluate a given schedule. To help us do this will define an
+array, $schedule[i]$, which maps each point in time, $1 \leq i <= |P|$,  to an
+unique product $p$, where $p \in P$. It is then possible to iterate over a
+schedule and determine the number of active customers at each position $i$
+while retaining the maximum. Let $A \subset P$ which denotes the products
+scheduled after $p = $schedule[$i$]. The set of active customers can now be
+defined as
+
+$active(p,A) = c(\{p\}) \cup \{c(P-A-\{p\}) \cap c(A) \}$, where $p = schedule[i]$
+
+\begin{table}[H]
+\begin{tabular}{|c|c|c|c|c|c|c|}\hline
+Schedule & 1 & 2 & 3 & 4 & 5 & 6 \\
+\hline
+Product&$P_1$&$P_2$&$P_3$&$P_4$&$P_5$&$P_6$\\
+\hline
+$C_1$&1&*&*&*&*&1\\
+$C_2$&1&1&*&*&*&0\\
+$C_3$&0&1&*&*&*&1\\
+$C_4$&0&0&1&1&1&0\\
+$C_5$&0&0&1&0&1&0\\
+\hline
+\end{tabular}
+\caption{at $schedule[3]$, $P_3$ alone has two active customers as well as
+$C_3$ and $C_4$ active yielding four open stacks. The current search space is
+$6!$}
+\end{table}
+
+
+\subsection{Preprocessing}
+
+Several techniques can be used to simplify the problem and thus reduce the
+amount of search space that needs exploring to find the optimal solution. Table
+1. will be used to describe the two main techniques, subsumption and
+partitioning. When these techniques are successful it has been proven to
+dramatically reduce the time taken to find an optimal solution.
+
+Subsumption eliminates scheduling products which have no impact on the optimal
+solution if $c(p') \subseteq c(p'')$. For example, if $p'$ is a pen and $p''$
+is a pen lid, customers ordering only $p'$, will also require $p''$.  Therefore
+$p''$ can be removed from the schedule and later reinserted directly after $p'$
+without affecting the optimal solution. Below is subsumed products removed from
+table 1.
+
+\begin{table}[H]
+\begin{tabular}{|c|c|c|c|c|}\hline
+Schedule & 1 & 2 & 3 & 4 \\
+\hline
+Product&$P_1$&$P_2$&$P_3$&$P_6$\\
+\hline
+$C_1$&1&*&*&1\\
+$C_2$&1&1&*&0\\
+$C_3$&0&1&*&1\\
+$C_4$&0&0&1&0\\
+$C_5$&0&0&1&0\\
+\hline
+\end{tabular}
+\caption{$P_4$ and $P_5$ have been remoing, leaving a search space of $4!$}
+\end{table}
+
+Another preprocessing technique is partitioning the problem into sub problems.
+This is possible if $P$ can be partitioned into two sets $P'$ and $P''$, such
+that $c(P') \cap c(P'') = \emptyset$, hence there are no customers requiring a
+product from $P'$ and $P''$. Then $P'$ and $P''$ are independent problems and
+can be solved separately and the solutions concated together. This dramatically
+reduces the search space from $|P|!$ to $|P'|! + |P''|!$. Below table 3 has
+been partitioned.
+
+\begin{table}[H]
+\begin{tabular}{|c|c|c|c||c|}\hline
+Schedule & 1 & 2 & 3 & 1 \\
+\hline
+Product&$P_1$&$P_2$&$P_6$&$P_3$\\
+\hline
+$C_1$&1&*&1&*\\
+$C_2$&1&1&0&*\\
+$C_3$&0&1&1&*\\
+$C_4$&0&0&0&1\\
+$C_5$&0&0&0&1\\
+\hline
+\end{tabular} \caption{The double vertical lines indicates the partition in the
+problem, where the first partition has a search space of  $3!$ and the second has $1!$} \end{table}
+
+
+\subsection{Bounds} There is an upper and lower bounds in which the optimal
+solution must be found. These can be trivially stated as the $\max_{p \in P}
+c(p)$ for the lower bound and $|C|$ for the upper bound. However the bound may
+be improved by various techniques such as examing the problem instance as a graph to find the maximum weighted clique, and taking that as the new upper bound. 
+
+\subsection{Search Algorithms}
+
+After preprocessing, the reduced problem is then passed to a search algorithm
+where the optimal solution may be found. We will explore exhaustive, branch and
+bound, $A\star$ search algorithms along with satisfiability variants stepwise,
+binarychop and backwards which expand on $A\star$.
+
+\subsection{Exhaustive}
+
+The exhaustive search algorithm exhaustively explores the entire search space,
+which  is slow as every possible solution must be found and evaluated. This is
+not possible even with moderately sized $|P|$ as the computation required to
+find a solution explodes beyond the capabilies of current computers. However it
+does have a few benefits on over small values of $|P|$.  Firstly, it reinforces
+the correctness of advanced algorithms as optimal solutions may be compared.
+Secondly, it provides a good metric to determine the efficiency of primitive
+methods by comparing differing implementations.
+
+\begin{algorithm}[H]
+\caption{Exhaustive Search}
+\label{alg1}
+\begin{algorithmic}
+\REQUIRE $exhaustive(S,Sched,U)$
+\STATE $min := U$
+\STATE $T := S$
+\WHILE{$T \neq \emptyset$}
+\STATE $p :=$ any $p \in T$
+\STATE $T := T - \{p\}$
+\STATE $sp := exhaustive(s-\{p\}, Sched::p,U)$
+\IF {$sp < min$}
+\STATE $min := sp$
+\ENDIF
+\STATE \bf return $min$
+\ENDWHILE
+\ENSURE 
+\end{algorithmic}
+\end{algorithm}
+
+This algorithm starts by chopping the search space into smaller sub regions
+which it repeats recursively to form a tree. The algorithm is not concerned
+with narrowing the search space, therefore useful information is ignored at
+branches while the tree is grown which may be utilized by later algorithms
+(branch and bound) to speed up the search. The while loop selects a $p \in T$,
+which grows the tree horizontally, whereas the recursive function call, with
+$p$ removed from $S$ expands the tree vertically. When $S = \emptyset$, we are
+at a leaf of the tree with one possible $|P|!$ schedules. We evaluate the
+schedule, and the number of open stacks is passed up the tree being compared to
+other values obtained at each leaf. This is done after the recursive call with
+the minimum retained.
+
+\subsection{Branch and Bound}
+As $|P|$ increases the search space exponentially increases, so a system must
+be put in place to reduce the size of raw search performed. Our exhaustive
+algorithm transforms our search space into a tree (branching), we will use this
+tree for our next algorithm branch and bound. Unlike the exhaustive search
+alogorthm, information contained at the branch is not simply ignored but is
+used to narraow the search space. This algorithm considers the information and
+decides whether the optimal solution resides further down that branch (bound).
+This avoids exploring superfluous search space which cannot improve on the
+current optimal solution.
+
+\begin{algorithm}[H]
+\caption{Branch and Bound Search}
+\label{alg2}
+\begin{algorithmic}
+\REQUIRE $bb(S,Sched,L,U)$
+\IF {$S = \emptyset$}
+\STATE \bf return $0$
+\ENDIF
+\STATE $min := U$
+\STATE $T := S$
+\WHILE{$min > L$ \bf and $T \neq \emptyset$}
+\STATE $p := index \min \{active(p,S-\{p\}) | p \in T\}$
+\STATE $T := T - \{p\}$
+\IF {$active(p,S-\{p\}) \geq min$}
+\STATE \bf break
+\ENDIF
+\STATE $sp := \max(active(p,S-\{p\}),bb(S-\{p\},Sched::p,L,min))$
+\IF {$sp < min$}
+\STATE $min := sp$
+\ENDIF
+\STATE \bf return $min$
+\ENDWHILE
+\ENSURE
+\end{algorithmic}
+\end{algorithm}
+
+The algorithm starts by checking if $S = \emptyset$, if so no stacks are
+required and 0 is returned. Otherwise, it enters the while loop where a simple
+heuristic is used to determine the order of visiting each branch by picking $p
+\in T$ with the least active customers first. Hopefully this heuristic leads us
+to explore the optimal branch and subsequent iterations are avoided as the
+remaining p may have a greater or equal number of active customers compared to
+the current $min$. If this is true the while loop terminates as no better
+solution may be obtained at this branch. The max of the current active value
+compared to the value passing back up the tree is used as the minimun number of
+open stacks.
+
+\subsection{$A\star$}
+
+Our current tree may have up to $|P|!$ branches, but after close examination of
+generated trees it is evident that not all braches are unique but share the
+same partial branches. The question is whether we can re-use these braches and
+the accompanying minimum value. As it does not matter what is scheduled before
+these products, the value may be reused. Therefore the future does not depend
+on the past, and now our problem is amendable to dynamic programming. This
+moves the search space down to $2^|P|$ as each of the unique braches make up
+the super set of all elements in $P$.
+
+\begin{algorithm}[H]
+\caption{$A\star$ Search}
+\label{alg3}
+\begin{algorithmic}
+\REQUIRE $stacks(S,stacks,L,U)$
+\IF {$S = \emptyset$}
+\STATE \bf return $0$
+\ENDIF
+\IF {$stacks[S]$}
+\STATE return $stacks[S]$
+\ENDIF
+\STATE $min := U$
+\STATE $T := S$
+\WHILE{$min > L$ \bf and $T \neq \emptyset$}
+\STATE $p := index \min \{active(p,S-\{p\})$ $|$ $p \in T\}$
+\STATE $T := T - \{p\}$
+\IF {$active(p,S-\{p\}) \geq min$}
+\STATE \bf break
+\ENDIF
+\STATE $sp := \max(active(p,S-\{p\}),bb(S-\{p\},Sched::p,L,min))$
+\IF {$sp < min$}
+\STATE $min := sp$
+\ENDIF
+\STATE \bf return $min$
+\ENDWHILE
+\STATE $stacks[S] := min$
+\IF {$min > U$}
+\STATE $FAIL := FAIL::S$
+\ENDIF
+\ENSURE
+\end{algorithmic}
+\end{algorithm}
+
+This algorithm is identical to branch and bound except solutions for each
+computed set are stored in a lookup table after the while loop which later can
+be before the while avoiding unnesscessary recomputing.
+
+\subsection{Stepwise}
+
+The following three algorithms, stepwise, backwards and binarychop all turn our
+problem into a series of satisfiability problems by letting $U=L=n$ when
+calling stacks. If $n$ is returned, $n$ is the minimum number of stacks,
+otherwise stacks needs to be called again in hope to find the optimal solution.
+The following three algorithms step through the domain $[L,U]$ in different
+ways attempting to find the optimal solution. However, the lookup table after a
+non-successful call to stack may contain viable solutions which can be reused
+in if stepping forwards. As we need to be able record what solutions are
+incorrect, $A\star$ is slightly modified, where after the while loop sets with
+values $> U$ are recorded, which are simply removed form the lookup table
+before the next call to stacks. The follwing can be added after the while loop, 
+\\
+\begin{algorithmic}
+\STATE $stacks[S] := min$
+\IF {$min > U$}
+\STATE $FAIL := FAIL::S$
+\ENDIF
+\end{algorithmic}
+
+which is in the algorithm above.
+
+\begin{algorithm}[H]
+\caption{Stepwise}
+\label{alg4}
+\begin{algorithmic}
+\REQUIRE $stepwise(P,L,U)$
+\FOR{$try := L$ to $U$}
+\STATE $FAIL := \emptyset$
+\STATE $min := stacks(P,try,try)$
+\IF {$min = try$}
+\STATE \bf return $min$
+\ENDIF
+\ENDFOR
+\FOR{$S \in FAIL$}
+\STATE $stack[S] := 0$
+\ENDFOR
+\ENSURE
+\end{algorithmic}
+\end{algorithm}
+
+Stepwise, tries each value within the domain $L \leq try \le U$ starting at the
+lower bound calling stacks$(P,try,try)$ with $try$. Where $try$ is incremented
+and failed sets removed from the table with each failure, until an optimal
+solution is found.
+
+\subsection{Backwards}
+
+\begin{algorithm}[H]
+\caption{Backwards}
+\label{alg4}
+\begin{algorithmic}
+\REQUIRE $backwards(P,L,U)$
+\STATE $gmin := U+1$
+\STATE $try := U$
+\FOR{$S \in stack$}
+\STATE $stack[S] := 0$
+\ENDFOR
+\WHILE{$try \geq L$}
+\STATE $min := stacks(P,try,try)$
+\IF {$min > try$}
+\STATE \bf return $gmin$
+\ENDIF
+\STATE $gmin := min$
+\STATE $try := min-1$
+\ENDWHILE
+\ENSURE
+\end{algorithmic}
+\end{algorithm}
+
+Backwards moves from $U$ towards $L$, and has the ability to jump a number of
+values. A valid solution is found if we step one solution back too far and
+obtain an invalid solution.  Unlike stepwise no solutions in the lookup table
+may be re-used.
+
+\subsection{Binarychop}
+
+\begin{algorithm}[H]
+\caption{Binarychop}
+\label{alg4}
+\begin{algorithmic}
+\REQUIRE $binarychop(P,L,U)$
+\STATE $gmin := U+1$
+\WHILE{$L \leq U$}
+\STATE $FAIL := \emptyset$
+\STATE $try := (U+L)$ div $2$
+\STATE $min := stacks(P,try,try)$
+\IF {$min \le try$}
+\STATE $gmin := min$
+\STATE $U := min - 1$
+\FOR{$S \in stack$}
+\STATE $stack[S] := 0$
+\ENDFOR
+\ELSE
+\STATE $L := try + 1$
+\FOR{$S \in FAIL$}
+\STATE $stack[S] := 0$
+\ENDFOR
+\ENDIF
+\ENDWHILE
+\STATE \bf return $gmin$
+\ENSURE
+\end{algorithmic}
+\end{algorithm}
+
+BinaryChop is a variant of the two algorithms above, using both benefits of
+retaining solutions in the loopup table and the possibility of jumping a number
+of values. It is especially effective when the solution lays close to middle of
+the domain, as a binary search technique is used. 
+
+Unlike exhaustive and branch and bound at the completion of these
+algorithms we do not have a schedule. However, there is enough information in
+the lookup table to reproduce the schedule in polynomial time.
+
+\subsection{Non Opening Products}
+
+This is a technique used to reduce the search space in the previously explained
+algorithms (not including exhaustive), which returns a selected product before
+entering the while loop. It has been proven that products which do not open a
+new stack, if explored first do not affect the optimality of the solution. The
+proof is complicated and out of the scope of this project. This functionality can be added by the following lines above the while loop.
+\\
+\begin{algorithmic}
+\IF {$\exists p \in S . c(p) \supseteq \{c(P-S) \cap c(S)\}$}
+\STATE $alg(S-{p},L,U)$
+\ENDIF
+\end{algorithmic}

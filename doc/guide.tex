@@ -1,0 +1,16 @@
+\section{Guide to Using Software}
+
+The mosp utility runs both preprocessing and the search algorithm on a given
+problem instance and reports, statistics and the solution if obtained.
+
+It has many command line arguments, based on a command line interface:
+
+mosp flags problemFile
+
+If no flags are specified or only -h is used, mosp will print flags which turn
+on different search algorithms, among other features.
+
+The following example represents using subsumption and partitioning to solve a
+problem instance using the stepwise algorithm
+
+mosp -dps problem
